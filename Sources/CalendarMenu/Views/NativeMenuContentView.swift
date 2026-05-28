@@ -45,9 +45,7 @@ struct NativeMenuContentView: View {
     private var eventItems: some View {
         if let leadEvent = store.panelLeadEvent {
             Text("Upcoming \(store.relativeStartText(for: leadEvent, compact: false))")
-            Button(action: { store.openEvent(leadEvent) }) {
-                EventMenuLabel(event: leadEvent)
-            }
+            eventMenuItems(for: leadEvent, showsDetails: true)
         } else {
             Text("No events today or tomorrow")
 
@@ -61,10 +59,17 @@ struct NativeMenuContentView: View {
             Text(groupTitle(for: group.date))
 
             ForEach(group.events) { event in
-                Button(action: { store.openEvent(event) }) {
-                    EventMenuLabel(event: event)
-                }
+                eventMenuItems(for: event, showsDetails: false)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func eventMenuItems(for event: CalendarEvent, showsDetails: Bool) -> some View {
+        Button(eventTitle(for: event, includesLocation: showsDetails), action: { store.openEventInCalendar(event) })
+
+        if showsDetails, let conferenceService = event.conferenceService {
+            Button(conferenceService.joinTitle, action: { store.joinVideoMeeting(event) })
         }
     }
 
@@ -80,49 +85,28 @@ struct NativeMenuContentView: View {
 
         return DateFormatters.dayHeader.string(from: date)
     }
-}
 
-private struct EventMenuLabel: View {
-    let event: CalendarEvent
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 7) {
-            RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                .fill(event.color.color)
-                .frame(width: 4, height: 16)
-                .padding(.top, 2)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(timeText) · \(event.displayTitle)")
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                if let locationText {
-                    Text(locationText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-
-                if let conferenceText {
-                    Text(conferenceText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            .frame(width: 520, alignment: .leading)
-        }
+    private func eventTitle(for event: CalendarEvent, includesLocation: Bool) -> String {
+        let value = "\(timeText(for: event)) · \(displayTitle(for: event, includesLocation: includesLocation))"
+        return twoLineMenuTitle(value)
     }
 
-    private var timeText: String {
+    private func timeText(for event: CalendarEvent) -> String {
         if event.isAllDay {
             return "All day"
         }
         return DateFormatters.time.string(from: event.startDate)
     }
 
-    private var locationText: String? {
+    private func displayTitle(for event: CalendarEvent, includesLocation: Bool) -> String {
+        guard includesLocation, let locationText = locationText(for: event) else {
+            return event.displayTitle
+        }
+
+        return "\(event.displayTitle) (\(locationText))"
+    }
+
+    private func locationText(for event: CalendarEvent) -> String? {
         guard let location = event.location?.trimmingCharacters(in: .whitespacesAndNewlines),
               !location.isEmpty else {
             return nil
@@ -131,17 +115,23 @@ private struct EventMenuLabel: View {
         return location
     }
 
-    private var conferenceText: String? {
-        guard let conferenceURL = event.conferenceURL else {
-            return nil
-        }
+    private func twoLineMenuTitle(_ value: String) -> String {
+        let firstLineLimit = 44
+        let secondLineLimit = 56
 
-        let value = conferenceURL.absoluteString
-
-        if value.count <= 64 {
+        guard value.count > firstLineLimit else {
             return value
         }
 
-        return "\(value.prefix(61))..."
+        let firstBreak = value[..<value.index(value.startIndex, offsetBy: firstLineLimit)]
+            .lastIndex(of: " ") ?? value.index(value.startIndex, offsetBy: firstLineLimit)
+        let firstLine = value[..<firstBreak].trimmingCharacters(in: .whitespaces)
+        var secondLine = value[firstBreak...].trimmingCharacters(in: .whitespaces)
+
+        if secondLine.count > secondLineLimit {
+            secondLine = "\(secondLine.prefix(secondLineLimit - 1))..."
+        }
+
+        return "\(firstLine)\n\(secondLine)"
     }
 }

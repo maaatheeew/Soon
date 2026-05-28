@@ -10,6 +10,7 @@ struct CalendarEvent: Identifiable, Equatable {
     let isAllDay: Bool
     let location: String?
     let conferenceURL: URL?
+    let conferenceService: ConferenceService?
 
     var displayTitle: String {
         title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Untitled event" : title
@@ -34,4 +35,33 @@ struct EventDayGroup: Identifiable {
     let events: [CalendarEvent]
 
     var id: Date { date }
+}
+
+enum ConferenceService: Equatable {
+    case telemost
+    case zoom
+    case googleMeet
+    case microsoftTeams
+    case faceTime
+    case webex
+    case generic
+
+    var joinTitle: String {
+        switch self {
+        case .telemost:
+            return "Join Telemost"
+        case .zoom:
+            return "Join Zoom"
+        case .googleMeet:
+            return "Join Google Meet"
+        case .microsoftTeams:
+            return "Join Microsoft Teams"
+        case .faceTime:
+            return "Join FaceTime"
+        case .webex:
+            return "Join Webex"
+        case .generic:
+            return "Join Video Meeting"
+        }
+    }
 }

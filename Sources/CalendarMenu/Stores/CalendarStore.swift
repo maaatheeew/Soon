@@ -140,13 +140,16 @@ final class CalendarStore: ObservableObject {
         NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Calendar.app"))
     }
 
-    func openEvent(_ event: CalendarEvent) {
-        if let conferenceURL = event.conferenceURL {
-            NSWorkspace.shared.open(conferenceURL)
+    func openEventInCalendar(_ event: CalendarEvent) {
+        openCalendarApp()
+    }
+
+    func joinVideoMeeting(_ event: CalendarEvent) {
+        guard let conferenceURL = event.conferenceURL else {
             return
         }
 
-        openCalendarApp()
+        NSWorkspace.shared.open(conferenceURL)
     }
 
     func openCalendarPrivacySettings() {
@@ -257,6 +260,8 @@ enum PreferenceKeys {
 
 private extension CalendarEvent {
     init(event: EKEvent) {
+        let conference = ConferenceURLResolver.resolve(from: event)
+
         self.init(
             id: event.eventIdentifier ?? "\(event.startDate.timeIntervalSince1970)-\(event.title ?? "")",
             title: event.title ?? "",
@@ -266,7 +271,8 @@ private extension CalendarEvent {
             color: CalendarEventColor(cgColor: event.calendar.cgColor),
             isAllDay: event.isAllDay,
             location: event.location,
-            conferenceURL: ConferenceURLResolver.resolve(from: event)
+            conferenceURL: conference?.url,
+            conferenceService: conference?.service
         )
     }
 }
