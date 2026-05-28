@@ -4,7 +4,9 @@ set -euo pipefail
 MODE="${1:-run}"
 APP_NAME="Soon"
 BUNDLE_ID="dev.codex.CalDot"
-MIN_SYSTEM_VERSION="14.0"
+APP_VERSION="${APP_VERSION:-1.0.0}"
+APP_BUILD_NUMBER="${APP_BUILD_NUMBER:-1}"
+MIN_SYSTEM_VERSION="26.0"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
@@ -16,7 +18,7 @@ APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
 ICON_SOURCE="$ROOT_DIR/Assets/Soon.icon"
 ICON_FILE="$APP_RESOURCES/Soon.icns"
-ICON_TOOL="/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool"
+ICON_BUILD_DIR="$DIST_DIR/icon-build"
 
 for PROCESS_NAME in "$APP_NAME" "CalDot" "CalendarMenu"; do
   pkill -x "$PROCESS_NAME" >/dev/null 2>&1 || true
@@ -35,28 +37,22 @@ build_icon() {
     return
   fi
 
-  if [[ ! -x "$ICON_TOOL" ]]; then
-    echo "warning: Icon Composer ictool not found; app icon will be skipped" >&2
-    return
-  fi
+  local partial_info
+  partial_info="$ICON_BUILD_DIR/PartialInfo.plist"
+  rm -rf "$ICON_BUILD_DIR"
+  mkdir -p "$ICON_BUILD_DIR"
 
-  local icon_build_dir iconset
-  icon_build_dir="$DIST_DIR/icon-build"
-  iconset="$icon_build_dir/Soon.iconset"
-  rm -rf "$icon_build_dir"
-  mkdir -p "$iconset"
+  xcrun actool \
+    --compile "$ICON_BUILD_DIR" \
+    --platform macosx \
+    --minimum-deployment-target "$MIN_SYSTEM_VERSION" \
+    --app-icon "$APP_NAME" \
+    --output-partial-info-plist "$partial_info" \
+    --standalone-icon-behavior all \
+    "$ICON_SOURCE" >/dev/null
 
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_16x16.png" --platform macOS --rendition Default --width 16 --height 16 --scale 1 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_16x16@2x.png" --platform macOS --rendition Default --width 16 --height 16 --scale 2 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_32x32.png" --platform macOS --rendition Default --width 32 --height 32 --scale 1 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_32x32@2x.png" --platform macOS --rendition Default --width 32 --height 32 --scale 2 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_128x128.png" --platform macOS --rendition Default --width 128 --height 128 --scale 1 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_128x128@2x.png" --platform macOS --rendition Default --width 128 --height 128 --scale 2 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_256x256.png" --platform macOS --rendition Default --width 256 --height 256 --scale 1 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_256x256@2x.png" --platform macOS --rendition Default --width 256 --height 256 --scale 2 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_512x512.png" --platform macOS --rendition Default --width 512 --height 512 --scale 1 >/dev/null
-  "$ICON_TOOL" "$ICON_SOURCE" --export-image --output-file "$iconset/icon_512x512@2x.png" --platform macOS --rendition Default --width 512 --height 512 --scale 2 >/dev/null
-  iconutil -c icns "$iconset" -o "$ICON_FILE"
+  cp "$ICON_BUILD_DIR/Assets.car" "$APP_RESOURCES/Assets.car"
+  cp "$ICON_BUILD_DIR/Soon.icns" "$ICON_FILE"
 }
 
 build_icon
@@ -64,9 +60,12 @@ build_icon
 /usr/libexec/PlistBuddy -c "Clear dict" "$INFO_PLIST" >/dev/null 2>&1 || true
 /usr/libexec/PlistBuddy -c "Add :CFBundleExecutable string $APP_NAME" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string $BUNDLE_ID" "$INFO_PLIST"
-/usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string Soon.icns" "$INFO_PLIST"
+/usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string Soon" "$INFO_PLIST"
+/usr/libexec/PlistBuddy -c "Add :CFBundleIconName string Soon" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Add :CFBundleName string Soon" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Add :CFBundlePackageType string APPL" "$INFO_PLIST"
+/usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $APP_VERSION" "$INFO_PLIST"
+/usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $APP_BUILD_NUMBER" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string $MIN_SYSTEM_VERSION" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Add :LSUIElement bool true" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Add :NSCalendarsFullAccessUsageDescription string Soon shows upcoming Apple Calendar events in the menu bar." "$INFO_PLIST"
