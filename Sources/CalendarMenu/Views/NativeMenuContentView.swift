@@ -45,14 +45,15 @@ struct NativeMenuContentView: View {
     private var eventItems: some View {
         if let leadEvent = store.panelLeadEvent {
             Text("Upcoming \(store.relativeStartText(for: leadEvent, compact: false))")
-            Button(action: store.openCalendarApp) {
+            Button(action: { store.openEvent(leadEvent) }) {
                 EventMenuLabel(event: leadEvent)
             }
         } else {
             Text("No events today or tomorrow")
 
             if let nextEvent = store.nextEvent {
-                Text("Next: \(shortTitle(nextEvent.displayTitle)) \(store.relativeStartText(for: nextEvent, compact: true))")
+                Text("Next: \(nextEvent.displayTitle) \(store.relativeStartText(for: nextEvent, compact: true))")
+                    .lineLimit(2)
             }
         }
 
@@ -60,7 +61,7 @@ struct NativeMenuContentView: View {
             Text(groupTitle(for: group.date))
 
             ForEach(group.events) { event in
-                Button(action: store.openCalendarApp) {
+                Button(action: { store.openEvent(event) }) {
                     EventMenuLabel(event: event)
                 }
             }
@@ -79,28 +80,38 @@ struct NativeMenuContentView: View {
 
         return DateFormatters.dayHeader.string(from: date)
     }
-
-    private func shortTitle(_ title: String) -> String {
-        let maxLength = 30
-        guard title.count > maxLength else {
-            return title
-        }
-
-        return "\(title.prefix(maxLength - 1))..."
-    }
 }
 
 private struct EventMenuLabel: View {
     let event: CalendarEvent
 
     var body: some View {
-        HStack(spacing: 7) {
+        HStack(alignment: .top, spacing: 7) {
             RoundedRectangle(cornerRadius: 1.5, style: .continuous)
                 .fill(event.color.color)
                 .frame(width: 4, height: 16)
+                .padding(.top, 2)
 
-            Text("\(timeText) · \(shortTitle(event.displayTitle))")
-                .lineLimit(1)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(timeText) · \(event.displayTitle)")
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let locationText {
+                    Text(locationText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                if let conferenceText {
+                    Text(conferenceText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 520, alignment: .leading)
         }
     }
 
@@ -111,12 +122,26 @@ private struct EventMenuLabel: View {
         return DateFormatters.time.string(from: event.startDate)
     }
 
-    private func shortTitle(_ title: String) -> String {
-        let maxLength = 30
-        guard title.count > maxLength else {
-            return title
+    private var locationText: String? {
+        guard let location = event.location?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !location.isEmpty else {
+            return nil
         }
 
-        return "\(title.prefix(maxLength - 1))..."
+        return location
+    }
+
+    private var conferenceText: String? {
+        guard let conferenceURL = event.conferenceURL else {
+            return nil
+        }
+
+        let value = conferenceURL.absoluteString
+
+        if value.count <= 64 {
+            return value
+        }
+
+        return "\(value.prefix(61))..."
     }
 }

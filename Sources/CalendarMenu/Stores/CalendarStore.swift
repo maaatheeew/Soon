@@ -113,7 +113,7 @@ final class CalendarStore: ObservableObject {
 
         let now = Date()
         let calendar = Calendar.current
-            let storedLookaheadDays = UserDefaults.standard.object(forKey: PreferenceKeys.lookaheadDays) as? Int ?? 30
+        let storedLookaheadDays = UserDefaults.standard.object(forKey: PreferenceKeys.lookaheadDays) as? Int ?? 30
         let lookaheadDays = max(1, storedLookaheadDays)
         let includeAllDay = UserDefaults.standard.object(forKey: PreferenceKeys.includeAllDayEvents) as? Bool ?? true
         let endDate = calendar.date(byAdding: .day, value: lookaheadDays, to: now) ?? now.addingTimeInterval(7 * 24 * 60 * 60)
@@ -138,6 +138,15 @@ final class CalendarStore: ObservableObject {
 
     func openCalendarApp() {
         NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Calendar.app"))
+    }
+
+    func openEvent(_ event: CalendarEvent) {
+        if let conferenceURL = event.conferenceURL {
+            NSWorkspace.shared.open(conferenceURL)
+            return
+        }
+
+        openCalendarApp()
     }
 
     func openCalendarPrivacySettings() {
@@ -256,7 +265,8 @@ private extension CalendarEvent {
             calendarTitle: event.calendar.title,
             color: CalendarEventColor(cgColor: event.calendar.cgColor),
             isAllDay: event.isAllDay,
-            location: event.location
+            location: event.location,
+            conferenceURL: ConferenceURLResolver.resolve(from: event)
         )
     }
 }

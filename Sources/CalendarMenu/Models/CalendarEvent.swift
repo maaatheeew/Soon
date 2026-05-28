@@ -9,6 +9,7 @@ struct CalendarEvent: Identifiable, Equatable {
     let color: CalendarEventColor
     let isAllDay: Bool
     let location: String?
+    let conferenceURL: URL?
 
     var displayTitle: String {
         title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Untitled event" : title
