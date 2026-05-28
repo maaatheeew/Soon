@@ -1,42 +1,68 @@
-# Soon
+<table>
+  <tr>
+    <td width="132" valign="middle">
+      <img src="docs/assets/Soon-icon-hero.png" alt="Soon icon" width="112">
+    </td>
+    <td valign="middle">
+      <h1>Soon</h1>
+      <p>Soon is a tiny native macOS menu bar app for Apple Calendar. It shows your next event with a live countdown, keeps today and tomorrow one click away, and opens Apple Calendar when you need the full schedule.</p>
+    </td>
+  </tr>
+</table>
 
-<p align="center">
-  <img src="Docs/icon-preview.png" alt="Soon icon" width="128" height="128">
-</p>
+![Soon screenshot](docs/demo/Soon-screenshot.png)
 
-Soon is a tiny native macOS menu bar app for Apple Calendar.
+## Highlights
 
-It shows your next calendar event directly in the menu bar with a live countdown. Open the menu to see today and tomorrow, then jump into Apple Calendar when you need the full schedule.
+- Native macOS menu bar app
+- Apple Calendar integration through EventKit
+- Live countdown for the next event
+- System pull-down menu with today's and tomorrow's events
+- Quick action to open Apple Calendar
+- Fast refresh from Calendar change notifications plus a 5-second fallback check
+- Adaptive source icon included as an Icon Composer `.icon` document
 
-![Soon screenshot](Docs/screenshot.png)
+## Requirements
 
-## What It Does
-
-- Reads events from the system Apple Calendar using EventKit.
-- Shows the next event and countdown in the macOS menu bar.
-- Shows only today and tomorrow in the menu.
-- Opens Apple Calendar from the menu.
-- Updates from system calendar change notifications, with a fast 5-second fallback refresh.
+- macOS 26 or newer
+- Xcode 26 or newer, or a recent Swift 6-compatible toolchain
 
 ## Install
 
-1. Download `Soon.dmg` from the GitHub release.
-2. Open the DMG.
-3. Drag `Soon.app` into Applications.
-4. Launch Soon and allow Calendar access when macOS asks.
+Download `Soon.dmg` from the latest GitHub Release, open it, and drag `Soon.app` into Applications. On first launch, allow Calendar access.
 
-## Build Locally
+## Run Locally
 
 ```bash
 ./script/build_and_run.sh
 ```
 
-To create the DMG:
+## Build A DMG
 
 ```bash
 ./script/package_dmg.sh
 ```
 
-## Icon
+This creates `dist/Soon.dmg`.
 
-The adaptive source icon is included at `Assets/Soon.icon`. The build script exports it through Xcode's Icon Composer tooling and embeds `Soon.icns` in the app bundle for macOS distribution.
+## Repository Layout
+
+- `Sources/CalendarMenu/` Swift app source
+- `Assets/Soon.icon/` adaptive Icon Composer source icon
+- `docs/assets/` public brand assets used in the README
+- `docs/demo/` public screenshot media used in the README
+- `script/` local build and packaging scripts
+
+## Privacy
+
+Soon reads events from Apple Calendar using the system EventKit permission prompt. It does not require an account, server, or cloud sync of its own.
+
+## License
+
+Soon is available under the MIT License. See `LICENSE`.
+
+## Stars
+
+![GitHub Repo stars](https://img.shields.io/github/stars/maaatheeew/soon)
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maaatheeew%2Fsoon&type=Date)](https://star-history.com/#maaatheeew/soon&Date)
