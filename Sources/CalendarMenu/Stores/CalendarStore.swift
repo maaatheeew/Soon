@@ -35,6 +35,10 @@ final class CalendarStore: ObservableObject {
         events.first
     }
 
+    var statusBarEvent: CalendarEvent? {
+        events.first { !$0.isAllDay }
+    }
+
     var panelEvents: [CalendarEvent] {
         let calendar = Calendar.current
         let now = Date()
@@ -46,29 +50,33 @@ final class CalendarStore: ObservableObject {
         }
     }
 
-    var panelLeadEvent: CalendarEvent? {
-        panelEvents.first
+    var panelCurrentEvents: [CalendarEvent] {
+        let now = Date()
+
+        return panelEvents.filter { event in
+            !event.isAllDay && event.startDate <= now && event.endDate > now
+        }
     }
 
-    var panelGroupsExcludingLead: [EventDayGroup] {
-        let leadID = panelLeadEvent?.id
-        let remaining = panelEvents.filter { $0.id != leadID }
-        let grouped = Dictionary(grouping: remaining) { event in
-            Calendar.current.startOfDay(for: event.startDate)
-        }
+    var panelUpcomingEvents: [CalendarEvent] {
+        let now = Date()
 
-        return grouped
-            .map { EventDayGroup(date: $0.key, events: $0.value.sorted { $0.startDate < $1.startDate }) }
-            .sorted { $0.date < $1.date }
+        return panelEvents.filter { event in
+            !event.isAllDay && event.startDate > now
+        }
+    }
+
+    var panelAllDayEvents: [CalendarEvent] {
+        panelEvents.filter(\.isAllDay)
     }
 
     var menuBarStatusText: String {
         switch authorizationStatus {
         case .fullAccess:
-            guard let nextEvent else {
+            guard let statusBarEvent else {
                 return "No events"
             }
-            return "\(trimmedForMenu(nextEvent.displayTitle)) · \(relativeStartText(for: nextEvent, compact: true))"
+            return "\(trimmedForMenu(statusBarEvent.displayTitle)) · \(relativeStartText(for: statusBarEvent, compact: true))"
         case .needsPermission:
             return "Calendar access"
         case .denied:

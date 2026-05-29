@@ -43,10 +43,7 @@ struct NativeMenuContentView: View {
 
     @ViewBuilder
     private var eventItems: some View {
-        if let leadEvent = store.panelLeadEvent {
-            Text("Upcoming \(store.relativeStartText(for: leadEvent, compact: false))")
-            eventMenuItems(for: leadEvent, showsDetails: true)
-        } else {
+        if store.panelEvents.isEmpty {
             Text("No events today or tomorrow")
 
             if let nextEvent = store.nextEvent {
@@ -55,11 +52,27 @@ struct NativeMenuContentView: View {
             }
         }
 
-        ForEach(store.panelGroupsExcludingLead) { group in
-            Text(groupTitle(for: group.date))
+        if !store.panelCurrentEvents.isEmpty {
+            Text("Now")
 
-            ForEach(group.events) { event in
+            ForEach(store.panelCurrentEvents) { event in
+                eventMenuItems(for: event, showsDetails: true)
+            }
+        }
+
+        if !store.panelUpcomingEvents.isEmpty {
+            Text("Upcoming")
+
+            ForEach(store.panelUpcomingEvents) { event in
                 eventMenuItems(for: event, showsDetails: false)
+            }
+        }
+
+        if !store.panelAllDayEvents.isEmpty {
+            Text("All day")
+
+            ForEach(store.panelAllDayEvents) { event in
+                allDayEventMenuItem(for: event)
             }
         }
     }
@@ -73,17 +86,8 @@ struct NativeMenuContentView: View {
         }
     }
 
-    private func groupTitle(for date: Date) -> String {
-        let calendar = Calendar.current
-
-        if calendar.isDateInToday(date) {
-            return "Today"
-        }
-        if calendar.isDateInTomorrow(date) {
-            return "Tomorrow"
-        }
-
-        return DateFormatters.dayHeader.string(from: date)
+    private func allDayEventMenuItem(for event: CalendarEvent) -> some View {
+        Button(twoLineMenuTitle(displayTitle(for: event, includesLocation: false)), action: { store.openEventInCalendar(event) })
     }
 
     private func eventTitle(for event: CalendarEvent, includesLocation: Bool) -> String {
@@ -92,10 +96,17 @@ struct NativeMenuContentView: View {
     }
 
     private func timeText(for event: CalendarEvent) -> String {
-        if event.isAllDay {
-            return "All day"
+        let calendar = Calendar.current
+        let time = DateFormatters.time.string(from: event.startDate)
+
+        if calendar.isDateInToday(event.startDate) {
+            return time
         }
-        return DateFormatters.time.string(from: event.startDate)
+        if calendar.isDateInTomorrow(event.startDate) {
+            return "Tomorrow \(time)"
+        }
+
+        return "\(DateFormatters.dayHeader.string(from: event.startDate)) \(time)"
     }
 
     private func displayTitle(for event: CalendarEvent, includesLocation: Bool) -> String {

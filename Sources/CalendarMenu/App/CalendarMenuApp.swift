@@ -11,7 +11,7 @@ struct CalendarMenuApp: App {
             NativeMenuContentView(store: calendarStore)
                 .environmentObject(calendarStore)
         } label: {
-            MenuBarLabel(event: calendarStore.nextEvent, statusText: calendarStore.menuBarStatusText)
+            MenuBarLabel(event: calendarStore.statusBarEvent, statusText: calendarStore.menuBarStatusText)
         }
         .menuBarExtraStyle(.menu)
     }

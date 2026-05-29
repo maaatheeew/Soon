@@ -30,13 +30,6 @@ struct CalendarEventColor: Equatable {
     }
 }
 
-struct EventDayGroup: Identifiable {
-    let date: Date
-    let events: [CalendarEvent]
-
-    var id: Date { date }
-}
-
 enum ConferenceService: Equatable {
     case telemost
     case zoom

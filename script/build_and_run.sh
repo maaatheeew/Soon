@@ -4,8 +4,8 @@ set -euo pipefail
 MODE="${1:-run}"
 APP_NAME="Soon"
 BUNDLE_ID="dev.codex.CalDot"
-APP_VERSION="${APP_VERSION:-1.1}"
-APP_BUILD_NUMBER="${APP_BUILD_NUMBER:-2}"
+APP_VERSION="${APP_VERSION:-1.2}"
+APP_BUILD_NUMBER="${APP_BUILD_NUMBER:-3}"
 MIN_SYSTEM_VERSION="26.0"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
