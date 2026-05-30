@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_NAME="Soon"
-APP_VERSION="${APP_VERSION:-1.3}"
+APP_VERSION="${APP_VERSION:-1.2}"
 DIST_DIR="$ROOT_DIR/dist"
 APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 DMG_STAGING="$DIST_DIR/dmg-staging"
@@ -12,7 +12,7 @@ DMG_LATEST_PATH="$DIST_DIR/$APP_NAME.dmg"
 VOLUME_NAME="$APP_NAME"
 
 cd "$ROOT_DIR"
-APP_VERSION="$APP_VERSION" APP_BUILD_NUMBER="${APP_BUILD_NUMBER:-4}" "$ROOT_DIR/script/build_and_run.sh" --package-only
+APP_VERSION="$APP_VERSION" APP_BUILD_NUMBER="${APP_BUILD_NUMBER:-3}" "$ROOT_DIR/script/build_and_run.sh" --package-only
 
 rm -rf "$DMG_STAGING" "$DMG_PATH" "$DMG_LATEST_PATH"
 mkdir -p "$DMG_STAGING"

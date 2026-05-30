@@ -58,21 +58,11 @@ final class CalendarStore: ObservableObject {
         }
     }
 
-    var panelUpcomingTodayEvents: [CalendarEvent] {
+    var panelUpcomingEvents: [CalendarEvent] {
         let now = Date()
-        let calendar = Calendar.current
 
         return panelEvents.filter { event in
-            !event.isAllDay && event.startDate > now && calendar.isDateInToday(event.startDate)
-        }
-    }
-
-    var panelUpcomingTomorrowEvents: [CalendarEvent] {
-        let now = Date()
-        let calendar = Calendar.current
-
-        return panelEvents.filter { event in
-            !event.isAllDay && event.startDate > now && calendar.isDateInTomorrow(event.startDate)
+            !event.isAllDay && event.startDate > now
         }
     }
 
@@ -86,7 +76,7 @@ final class CalendarStore: ObservableObject {
             guard let statusBarEvent else {
                 return "No events"
             }
-            return "\(trimmedForMenu(statusBarEvent.displayTitle)) · \(menuBarRelativeText(for: statusBarEvent))"
+            return "\(trimmedForMenu(statusBarEvent.displayTitle)) · \(relativeStartText(for: statusBarEvent, compact: true))"
         case .needsPermission:
             return "Calendar access"
         case .denied:
@@ -210,39 +200,6 @@ final class CalendarStore: ObservableObject {
             return "in \(hours) h \(minutes) min"
         }
         return "in \(minutes) min"
-    }
-
-    func menuBarRelativeText(for event: CalendarEvent) -> String {
-        let now = Date()
-
-        if event.startDate <= now && event.endDate > now {
-            let elapsed = now.timeIntervalSince(event.startDate)
-
-            if elapsed < 180 {
-                return "now"
-            }
-
-            return "\(remainingTimeText(for: event, from: now, compact: true)) left"
-        }
-
-        return relativeStartText(for: event, compact: true)
-    }
-
-    func endingText(for event: CalendarEvent) -> String {
-        "Ending in \(remainingTimeText(for: event, from: Date(), compact: false))"
-    }
-
-    private func remainingTimeText(for event: CalendarEvent, from date: Date, compact: Bool) -> String {
-        let minutesUntilEnd = max(1, Int(ceil(event.endDate.timeIntervalSince(date) / 60)))
-        let hours = minutesUntilEnd / 60
-        let minutes = minutesUntilEnd % 60
-
-        if hours > 0 {
-            let minuteUnit = compact ? "m" : "min"
-            return "\(hours) h \(minutes) \(minuteUnit)"
-        }
-
-        return compact ? "\(minutesUntilEnd) m" : "\(minutesUntilEnd) min"
     }
 
     private func updateAuthorizationStatus() {
