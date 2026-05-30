@@ -52,18 +52,26 @@ struct NativeMenuContentView: View {
             }
         }
 
-        if !store.panelCurrentEvents.isEmpty {
-            Text("Now")
+        if let currentEvent = store.panelCurrentEvents.first {
+            Text(store.endingText(for: currentEvent))
 
             ForEach(store.panelCurrentEvents) { event in
                 eventMenuItems(for: event, showsDetails: true)
             }
         }
 
-        if !store.panelUpcomingEvents.isEmpty {
+        if !store.panelUpcomingTodayEvents.isEmpty {
             Text("Upcoming")
 
-            ForEach(store.panelUpcomingEvents) { event in
+            ForEach(store.panelUpcomingTodayEvents) { event in
+                eventMenuItems(for: event, showsDetails: false)
+            }
+        }
+
+        if !store.panelUpcomingTomorrowEvents.isEmpty {
+            Text("Tomorrow")
+
+            ForEach(store.panelUpcomingTomorrowEvents) { event in
                 eventMenuItems(for: event, showsDetails: false)
             }
         }
@@ -102,10 +110,6 @@ struct NativeMenuContentView: View {
         if calendar.isDateInToday(event.startDate) {
             return time
         }
-        if calendar.isDateInTomorrow(event.startDate) {
-            return "Tomorrow \(time)"
-        }
-
         return "\(DateFormatters.dayHeader.string(from: event.startDate)) \(time)"
     }
 
