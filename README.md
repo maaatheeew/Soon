@@ -43,7 +43,7 @@ Download `Soon.dmg` from the latest GitHub Release, open it, and drag `Soon.app`
 ./script/package_dmg.sh
 ```
 
-This creates `dist/Soon-1.3.dmg` and `dist/Soon.dmg`.
+This creates `dist/Soon-1.4.dmg` and `dist/Soon.dmg`.
 
 ## Repository Layout
 
