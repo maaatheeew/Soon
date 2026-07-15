@@ -64,7 +64,7 @@ struct NativeMenuContentView: View {
             Text("Upcoming")
 
             ForEach(store.panelUpcomingTodayEvents) { event in
-                eventMenuItems(for: event, showsDetails: false)
+                eventMenuItems(for: event, showsDetails: event.id == store.panelFeaturedUpcomingEvent?.id)
             }
         }
 
@@ -80,7 +80,7 @@ struct NativeMenuContentView: View {
             Text("Tomorrow")
 
             ForEach(store.panelUpcomingTomorrowEvents) { event in
-                eventMenuItems(for: event, showsDetails: false)
+                eventMenuItems(for: event, showsDetails: event.id == store.panelFeaturedUpcomingEvent?.id)
             }
         }
     }

@@ -76,6 +76,22 @@ final class CalendarStore: ObservableObject {
         }
     }
 
+    var panelUpcomingEvents: [CalendarEvent] {
+        let now = Date()
+
+        return panelEvents.filter { event in
+            !event.isAllDay && event.startDate > now
+        }
+    }
+
+    var panelFeaturedUpcomingEvent: CalendarEvent? {
+        guard panelCurrentEvents.isEmpty else {
+            return nil
+        }
+
+        return panelUpcomingEvents.first
+    }
+
     var panelAllDayEvents: [CalendarEvent] {
         panelEvents.filter(\.isAllDay)
     }
