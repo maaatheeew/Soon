@@ -63,6 +63,4 @@ Soon is available under the MIT License. See `LICENSE`.
 
 ## Stars
 
-![GitHub Repo stars](https://img.shields.io/github/stars/maaatheeew/soon)
-
 [![Star History Chart](https://api.star-history.com/svg?repos=maaatheeew%2Fsoon&type=Date)](https://star-history.com/#maaatheeew/soon&Date)
