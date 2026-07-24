@@ -1,4 +1,4 @@
-# Soon v1.4
+# Soon v1.5
 
 Current stable GitHub release.
 
@@ -8,6 +8,7 @@ Current stable GitHub release.
 - Native pull-down menu grouped by ending, upcoming, tomorrow, and all-day events.
 - Current events show ending time in the menu and remaining time in the menu bar.
 - All-day events stay out of the menu bar and appear in their own menu section.
-- Meeting actions and room details are available immediately for the next event, including detected video meeting links.
+- Room details are shown in parentheses for every event that has a location.
+- Meeting actions are available immediately for the next event, including detected video meeting links.
 - Bundled macOS 26 adaptive Icon Composer source icon compiled through `actool`.
 - DMG installer with `Soon.app` and Applications shortcut.

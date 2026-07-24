@@ -4,7 +4,7 @@ set -euo pipefail
 MODE="${1:-run}"
 APP_NAME="Soon"
 BUNDLE_ID="dev.codex.CalDot"
-APP_VERSION="${APP_VERSION:-1.4}"
+APP_VERSION="${APP_VERSION:-1.5}"
 APP_BUILD_NUMBER="${APP_BUILD_NUMBER:-1}"
 MIN_SYSTEM_VERSION="26.0"
 

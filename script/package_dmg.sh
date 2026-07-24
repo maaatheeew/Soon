@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_NAME="Soon"
-APP_VERSION="${APP_VERSION:-1.4}"
+APP_VERSION="${APP_VERSION:-1.5}"
 DIST_DIR="$ROOT_DIR/dist"
 APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 DMG_STAGING="$DIST_DIR/dmg-staging"

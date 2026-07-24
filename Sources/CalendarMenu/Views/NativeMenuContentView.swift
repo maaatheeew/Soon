@@ -47,7 +47,7 @@ struct NativeMenuContentView: View {
             Text("No events today or tomorrow")
 
             if let nextEvent = store.nextEvent {
-                Text("Next: \(nextEvent.displayTitle) \(store.relativeStartText(for: nextEvent, compact: true))")
+                Text("Next: \(displayTitle(for: nextEvent)) \(store.relativeStartText(for: nextEvent, compact: true))")
                     .lineLimit(2)
             }
         }
@@ -87,7 +87,7 @@ struct NativeMenuContentView: View {
 
     @ViewBuilder
     private func eventMenuItems(for event: CalendarEvent, showsDetails: Bool) -> some View {
-        Button(eventTitle(for: event, includesLocation: showsDetails), action: { store.openEventInCalendar(event) })
+        Button(eventTitle(for: event), action: { store.openEventInCalendar(event) })
 
         if showsDetails, let conferenceService = event.conferenceService {
             Button(conferenceService.joinTitle, action: { store.joinVideoMeeting(event) })
@@ -95,11 +95,11 @@ struct NativeMenuContentView: View {
     }
 
     private func allDayEventMenuItem(for event: CalendarEvent) -> some View {
-        Button(twoLineMenuTitle(displayTitle(for: event, includesLocation: false)), action: { store.openEventInCalendar(event) })
+        Button(twoLineMenuTitle(displayTitle(for: event)), action: { store.openEventInCalendar(event) })
     }
 
-    private func eventTitle(for event: CalendarEvent, includesLocation: Bool) -> String {
-        let value = "\(timeText(for: event)) · \(displayTitle(for: event, includesLocation: includesLocation))"
+    private func eventTitle(for event: CalendarEvent) -> String {
+        let value = "\(timeText(for: event)) · \(displayTitle(for: event))"
         return twoLineMenuTitle(value)
     }
 
@@ -117,8 +117,8 @@ struct NativeMenuContentView: View {
         return "\(DateFormatters.dayHeader.string(from: event.startDate)) \(time)"
     }
 
-    private func displayTitle(for event: CalendarEvent, includesLocation: Bool) -> String {
-        guard includesLocation, let locationText = locationText(for: event) else {
+    private func displayTitle(for event: CalendarEvent) -> String {
+        guard let locationText = locationText(for: event) else {
             return event.displayTitle
         }
 
